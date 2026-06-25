@@ -625,11 +625,22 @@ function renderizarRecetas(lista) {
         <p style="font-size:13px;color:var(--text-muted)">${receta.descripcion || ''}</p>
       </div>
       <div class="card-footer">
-        <button class="btn btn-sm" onclick="abrirIngredientes(${receta.id}, '${receta.nombre.replace(/'/g,"\\'")}')">🧂 Ingredientes</button>
-        <button class="btn btn-sm btn-edit" onclick="editarReceta(${receta.id})">Editar</button>
-        <button class="btn btn-sm btn-danger" onclick="eliminarReceta(${receta.id})">Eliminar</button>
+        <button class="btn btn-sm btn-ing" data-id="${receta.id}" data-nombre="${receta.nombre.replace(/"/g,'&quot;')}">🧂 Ingredientes</button>
+        <button class="btn btn-sm btn-edit btn-editar-receta" data-id="${receta.id}">Editar</button>
+        <button class="btn btn-sm btn-danger btn-eliminar-receta" data-id="${receta.id}">Eliminar</button>
       </div>
     `;
+
+    card.querySelector('.btn-ing').addEventListener('click', function() {
+      abrirIngredientes(Number(this.dataset.id), this.dataset.nombre);
+    });
+    card.querySelector('.btn-editar-receta').addEventListener('click', function() {
+      editarReceta(Number(this.dataset.id));
+    });
+    card.querySelector('.btn-eliminar-receta').addEventListener('click', function() {
+      eliminarReceta(Number(this.dataset.id));
+    });
+
     contenedor.appendChild(card);
   });
 }

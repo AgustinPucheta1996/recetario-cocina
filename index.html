@@ -728,7 +728,7 @@ async function filtrarRecetas(categoriaId, btn) {
 //  INGREDIENTES — CRUD
 // ══════════════════════════════════════════════════════
 async function abrirIngredientes(recetaId, nombre) {
-  recetaActivaId     = recetaId;
+  recetaActivaId     = Number(recetaId);
   recetaActivaNombre = nombre;
   document.getElementById('modal-receta-nombre').textContent = `🧂 ${nombre}`;
   document.getElementById('modal-ingredientes').classList.add('open');
@@ -754,18 +754,24 @@ function renderizarIngredientes(lista) {
     return;
   }
 
-  ul.innerHTML = '';
+  ul.innerHTML = "";
   lista.forEach(ing => {
-    const li = document.createElement('li');
-    li.className = 'ing-item';
+    const li = document.createElement("li");
+    li.className = "ing-item";
     li.innerHTML = `
       <span class="ing-name">${ing.nombre}</span>
       <span class="ing-qty">${ing.cantidad} ${ing.unidad}</span>
       <div class="ing-actions">
-        <button class="btn btn-sm btn-edit" onclick="editarIngrediente(${ing.id})">Editar</button>
-        <button class="btn btn-sm btn-danger" onclick="eliminarIngrediente(${ing.id})">✕</button>
+        <button class="btn btn-sm btn-edit btn-editar-ing" data-id="${ing.id}">Editar</button>
+        <button class="btn btn-sm btn-danger btn-eliminar-ing" data-id="${ing.id}">✕</button>
       </div>
     `;
+    li.querySelector(".btn-editar-ing").addEventListener("click", function() {
+      editarIngrediente(Number(this.dataset.id));
+    });
+    li.querySelector(".btn-eliminar-ing").addEventListener("click", function() {
+      eliminarIngrediente(Number(this.dataset.id));
+    });
     ul.appendChild(li);
   });
 }

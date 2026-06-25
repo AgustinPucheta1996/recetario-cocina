@@ -1,0 +1,36 @@
+{
+  "recetas": [
+    {
+      "id": 1,
+      "nombre": "Tarta de manzana",
+      "descripcion": "Clásica tarta dulce con relleno de manzana y canela.",
+      "tiempo": 60,
+      "dificultad": "media",
+      "porciones": 8,
+      "categoriaId": 1
+    },
+    {
+      "id": 2,
+      "nombre": "Milanesas a la napolitana",
+      "descripcion": "Milanesas jugosas con salsa de tomate, jamón y queso gratinado.",
+      "tiempo": 45,
+      "dificultad": "fácil",
+      "porciones": 4,
+      "categoriaId": 2
+    }
+  ],
+  "categorias": [
+    { "id": 1, "nombre": "Postres", "color": "#F59E0B" },
+    { "id": 2, "nombre": "Platos principales", "color": "#EF4444" },
+    { "id": 3, "nombre": "Entradas", "color": "#10B981" },
+    { "id": 4, "nombre": "Bebidas", "color": "#3B82F6" }
+  ],
+  "ingredientes": [
+    { "id": 1, "recetaId": 1, "nombre": "Harina", "cantidad": 250, "unidad": "g" },
+    { "id": 2, "recetaId": 1, "nombre": "Manzanas", "cantidad": 3, "unidad": "unidad" },
+    { "id": 3, "recetaId": 1, "nombre": "Azúcar", "cantidad": 150, "unidad": "g" },
+    { "id": 4, "recetaId": 2, "nombre": "Carne vacuna", "cantidad": 500, "unidad": "g" },
+    { "id": 5, "recetaId": 2, "nombre": "Salsa de tomate", "cantidad": 200, "unidad": "ml" },
+    { "id": 6, "recetaId": 2, "nombre": "Queso mozzarella", "cantidad": 150, "unidad": "g" }
+  ]
+}

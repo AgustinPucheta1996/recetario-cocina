@@ -1,15 +1,6 @@
 {
   "recetas": [
     {
-      "id": "1",
-      "nombre": "Tarta de manzana",
-      "descripcion": "Clásica tarta dulce con relleno de manzana y canela.",
-      "tiempo": 60,
-      "dificultad": "media",
-      "porciones": 8,
-      "categoriaId": 1
-    },
-    {
       "id": "2",
       "nombre": "Milanesas a la napolitana",
       "descripcion": "Milanesas jugosas con salsa de tomate, jamón y queso gratinado.",
@@ -43,27 +34,6 @@
   ],
   "ingredientes": [
     {
-      "id": "1",
-      "recetaId": 1,
-      "nombre": "Harina",
-      "cantidad": 250,
-      "unidad": "g"
-    },
-    {
-      "id": "2",
-      "recetaId": 1,
-      "nombre": "Manzanas",
-      "cantidad": 3,
-      "unidad": "unidad"
-    },
-    {
-      "id": "3",
-      "recetaId": 1,
-      "nombre": "Azúcar",
-      "cantidad": 150,
-      "unidad": "g"
-    },
-    {
       "id": "4",
       "recetaId": 2,
       "nombre": "Carne vacuna",
@@ -76,13 +46,6 @@
       "nombre": "Salsa de tomate",
       "cantidad": 200,
       "unidad": "ml"
-    },
-    {
-      "id": "6",
-      "recetaId": 2,
-      "nombre": "Queso mozzarella",
-      "cantidad": 150,
-      "unidad": "g"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

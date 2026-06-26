@@ -1,150 +1,625 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recetario de Cocina</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recetario de Cocina</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <!-- ═══════════════ NAVBAR ═══════════════ -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="#" class="brand" onclick="showSection('inicio', event)">
+          <span class="logo">🍽️</span>
+          <span class="brand-name">Recetario</span>
+        </a>
 
-<!-- ═══════════════ HEADER ═══════════════ -->
-<header>
-  <span class="logo">🍽️</span>
-  <h1>Recetario</h1>
-  <nav>
-    <button class="active" onclick="showSection('recetas')">Recetas</button>
-    <button onclick="showSection('categorias')">Categorías</button>
-  </nav>
-</header>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+          ☰
+        </button>
 
-<!-- ═══════════════ MAIN ═══════════════ -->
-<main>
+        <nav class="main-nav" id="main-nav">
+          <a
+            href="#"
+            class="nav-link active"
+            data-section="inicio"
+            onclick="showSection('inicio', event)"
+            >Inicio</a
+          >
+          <a
+            href="#"
+            class="nav-link"
+            data-section="recetas"
+            onclick="showSection('recetas', event)"
+            >Recetas</a
+          >
 
-  <!-- ─── SECCIÓN RECETAS ─────────────────────────────── -->
-  <section id="section-recetas" class="section active">
-
-    <div class="form-card">
-      <h3 id="form-receta-title">➕ Nueva receta</h3>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label>Nombre</label>
-          <input type="text" id="receta-nombre" placeholder="Ej: Empanadas tucumanas" />
-        </div>
-        <div class="form-group full">
-          <label>Descripción</label>
-          <textarea id="receta-desc" placeholder="Breve descripción de la receta..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Tiempo (minutos)</label>
-          <input type="number" id="receta-tiempo" min="1" placeholder="30" />
-        </div>
-        <div class="form-group">
-          <label>Dificultad</label>
-          <select id="receta-dificultad">
-            <option value="fácil">Fácil</option>
-            <option value="media">Media</option>
-            <option value="difícil">Difícil</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Porciones</label>
-          <input type="number" id="receta-porciones" min="1" placeholder="4" />
-        </div>
-        <div class="form-group">
-          <label>Categoría</label>
-          <select id="receta-categoria"></select>
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-primary" onclick="guardarReceta()">Guardar receta</button>
-        <button class="btn btn-secondary" onclick="cancelarEdicionReceta()" id="btn-cancelar-receta" style="display:none">Cancelar</button>
-      </div>
-    </div>
-
-    <div class="filter-bar" id="filtros-categoria"></div>
-    <div class="cards-grid" id="lista-recetas"></div>
-  </section>
-
-  <!-- ─── SECCIÓN CATEGORÍAS ──────────────────────────── -->
-  <section id="section-categorias" class="section">
-
-    <div class="section-header">
-      <h2>Categorías</h2>
-    </div>
-
-    <div class="form-card">
-      <h3 id="form-cat-title">➕ Nueva categoría</h3>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Nombre</label>
-          <input type="text" id="cat-nombre" placeholder="Ej: Sopas" />
-        </div>
-        <div class="form-group">
-          <label>Color</label>
-          <input type="color" id="cat-color" value="#6366F1" />
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-primary" onclick="guardarCategoria()">Guardar categoría</button>
-        <button class="btn btn-secondary" onclick="cancelarEdicionCategoria()" id="btn-cancelar-cat" style="display:none">Cancelar</button>
-      </div>
-    </div>
-
-    <div id="lista-categorias"></div>
-  </section>
-
-</main>
-
-<!-- ═══════════════ MODAL INGREDIENTES ═══════════════ -->
-<div class="modal-overlay" id="modal-ingredientes">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="modal-receta-nombre">Ingredientes</h3>
-      <button class="modal-close" onclick="cerrarModal()">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <div class="form-card" style="margin-bottom:16px">
-        <h3 id="form-ing-title">➕ Agregar ingrediente</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" id="ing-nombre" placeholder="Ej: Harina" />
+          <div class="nav-dropdown">
+            <button class="nav-link nav-dropdown-btn" type="button">
+              Categorías <span class="arrow">▾</span>
+            </button>
+            <div class="nav-dropdown-menu">
+              <a href="#" onclick="filtrarDesdeNav('entrada', event)"
+                >🥟 Entradas</a
+              >
+              <a href="#" onclick="filtrarDesdeNav('principal', event)"
+                >🥩 Platos principales</a
+              >
+              <a href="#" onclick="filtrarDesdeNav('postre', event)"
+                >🍮 Postres</a
+              >
+            </div>
           </div>
-          <div class="form-group">
-            <label>Cantidad</label>
-            <input type="number" id="ing-cantidad" min="0.1" step="0.1" placeholder="250" />
+
+          <div class="nav-search">
+            <input
+              type="search"
+              id="buscador"
+              placeholder="Buscar recetas..."
+              oninput="buscarRecetas(this.value)"
+            />
+            <span class="search-icon">🔍</span>
           </div>
-          <div class="form-group">
-            <label>Unidad</label>
-            <select id="ing-unidad">
-              <option value="g">g</option>
-              <option value="kg">kg</option>
-              <option value="ml">ml</option>
-              <option value="l">l</option>
-              <option value="taza">taza</option>
-              <option value="cdta">cdta</option>
-              <option value="cda">cda</option>
-              <option value="unidad">unidad</option>
-            </select>
+
+          <div class="nav-auth">
+            <button class="btn btn-outline" onclick="abrirModalAuth('login')">
+              Iniciar sesión
+            </button>
+            <button
+              class="btn btn-primary"
+              onclick="abrirModalAuth('register')"
+            >
+              Registrarse
+            </button>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ═══════════════ MAIN ═══════════════ -->
+    <main>
+      <!-- ─── SECCIÓN INICIO ──────────────────────────────── -->
+      <section id="section-inicio" class="section active">
+        <!-- Carrusel -->
+        <div class="carousel" id="carousel">
+          <div class="carousel-track">
+            <div class="carousel-slide active">
+              <img
+                src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&q=80"
+                alt="Pizza artesanal"
+              />
+              <div class="carousel-caption">
+                <span class="carousel-tag">Destacada</span>
+                <h2>Pizza artesanal</h2>
+                <p>
+                  Masa crujiente, mozzarella derretida y salsa casera. El
+                  clásico italiano hecho en casa.
+                </p>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <img
+                src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80"
+                alt="Hamburguesa casera"
+              />
+              <div class="carousel-caption">
+                <span class="carousel-tag">Popular</span>
+                <h2>Hamburguesa casera</h2>
+                <p>
+                  Carne jugosa, pan tostado y toppings frescos. Perfecta para
+                  una cena especial.
+                </p>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <img
+                src="https://images.unsplash.com/photo-1544025162-d76694247-93?w=1200&q=80"
+                alt="Asado argentino"
+              />
+              <div class="carousel-caption">
+                <span class="carousel-tag">Tradición</span>
+                <h2>Asado argentino</h2>
+                <p>
+                  Cortes premium a la parrilla, chimichurri casero y el sabor de
+                  un domingo en familia.
+                </p>
+              </div>
+            </div>
+          </div>
+          <button
+            class="carousel-btn prev"
+            onclick="moverCarrusel(-1)"
+            aria-label="Anterior"
+          >
+            ‹
+          </button>
+          <button
+            class="carousel-btn next"
+            onclick="moverCarrusel(1)"
+            aria-label="Siguiente"
+          >
+            ›
+          </button>
+          <div class="carousel-dots" id="carousel-dots"></div>
+        </div>
+
+        <!-- Cartas destacadas -->
+        <div class="container">
+          <div class="section-intro">
+            <h2>Recetas destacadas</h2>
+            <p>
+              Explorá nuestras recetas más populares, organizadas por categoría.
+            </p>
+          </div>
+
+          <div class="featured-grid" id="featured-grid">
+            <article
+              class="featured-card"
+              data-categoria="postre"
+              data-nombre="flan casero"
+            >
+              <div class="featured-img">
+                <img
+                  src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600&q=80"
+                  alt="Flan casero"
+                />
+                <span class="featured-badge badge-postre">Postre</span>
+              </div>
+              <div class="featured-body">
+                <h3>Flan casero</h3>
+                <p class="featured-desc">
+                  Postre clásico argentino con caramelo dorado y textura sedosa.
+                  Ideal para cerrar cualquier comida con dulzura.
+                </p>
+                <div class="featured-meta">
+                  <span>⏱ 90 min</span>
+                  <span>🍽 8 porciones</span>
+                  <span class="badge dificultad-facil">Fácil</span>
+                </div>
+                <details class="recipe-details">
+                  <summary>Ver receta</summary>
+                  <ul>
+                    <li>500 ml leche · 4 huevos · 200 g azúcar</li>
+                    <li>Esencia de vainilla · Caramelo para el molde</li>
+                    <li>Hornear a baño María 60 min a 180 °C</li>
+                  </ul>
+                </details>
+              </div>
+            </article>
+
+            <article
+              class="featured-card"
+              data-categoria="entrada"
+              data-nombre="empanadas criollas"
+            >
+              <div class="featured-img">
+                <img
+                  src="https://images.unsplash.com/photo-1601050690597-df0568fa7098?w=600&q=80"
+                  alt="Empanadas criollas"
+                />
+                <span class="featured-badge badge-entrada">Entrada</span>
+              </div>
+              <div class="featured-body">
+                <h3>Empanadas criollas</h3>
+                <p class="featured-desc">
+                  Masa casera rellena de carne cortada a cuchillo con huevo,
+                  aceitunas y especias. Imprescindibles en cualquier reunión.
+                </p>
+                <div class="featured-meta">
+                  <span>⏱ 75 min</span>
+                  <span>🍽 12 porciones</span>
+                  <span class="badge dificultad-media">Media</span>
+                </div>
+                <details class="recipe-details">
+                  <summary>Ver receta</summary>
+                  <ul>
+                    <li>500 g harina · 250 g carne · 2 cebollas</li>
+                    <li>Huevo duro · Aceitunas · Comino y pimentón</li>
+                    <li>Horneá 25 min a 200 °C hasta dorar</li>
+                  </ul>
+                </details>
+              </div>
+            </article>
+
+            <article
+              class="featured-card"
+              data-categoria="principal"
+              data-nombre="asado argentino"
+            >
+              <div class="featured-img">
+                <img
+                  src="https://images.unsplash.com/photo-1558030006-450675393462?w=600&q=80"
+                  alt="Asado argentino"
+                />
+                <span class="featured-badge badge-principal"
+                  >Plato principal</span
+                >
+              </div>
+              <div class="featured-body">
+                <h3>Asado argentino</h3>
+                <p class="featured-desc">
+                  Corte de costillar a la parrilla con sal gruesa y chimichurri.
+                  La receta estrella de los domingos en familia.
+                </p>
+                <div class="featured-meta">
+                  <span>⏱ 180 min</span>
+                  <span>🍽 6 porciones</span>
+                  <span class="badge dificultad-media">Media</span>
+                </div>
+                <details class="recipe-details">
+                  <summary>Ver receta</summary>
+                  <ul>
+                    <li>2 kg costillar · Sal gruesa · Leña o carbón</li>
+                    <li>Chimichurri: perejil, ajo, aceite, vinagre</li>
+                    <li>Cocción lenta 2–3 h, fuego indirecto</li>
+                  </ul>
+                </details>
+              </div>
+            </article>
+          </div>
+
+          <div class="empty" id="featured-empty" style="display: none">
+            <div class="icon">🔍</div>
+            <p>No se encontraron recetas con ese criterio.</p>
           </div>
         </div>
-        <div class="form-actions">
-          <button class="btn btn-primary" onclick="guardarIngrediente()">Agregar</button>
-          <button class="btn btn-secondary" onclick="cancelarEdicionIngrediente()" id="btn-cancelar-ing" style="display:none">Cancelar</button>
+
+        <!-- Info rápida -->
+        <div class="info-strip">
+          <div class="container info-grid">
+            <div class="info-item">
+              <span class="info-icon">📖</span>
+              <div>
+                <strong>+100 recetas</strong>
+                <p>Desde entradas hasta postres</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="info-icon">⏱</span>
+              <div>
+                <strong>Tiempos reales</strong>
+                <p>Preparación y cocción detallados</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="info-icon">👨‍🍳</span>
+              <div>
+                <strong>Comunidad activa</strong>
+                <p>Compartí y guardá tus favoritas</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SECCIÓN RECETAS ─────────────────────────────── -->
+      <section id="section-recetas" class="section">
+        <div class="container">
+          <div class="form-card">
+            <h3 id="form-receta-title">➕ Nueva receta</h3>
+            <div class="form-grid">
+              <div class="form-group full">
+                <label>Nombre</label>
+                <input
+                  type="text"
+                  id="receta-nombre"
+                  placeholder="Ej: Empanadas tucumanas"
+                />
+              </div>
+              <div class="form-group full">
+                <label>Descripción</label>
+                <textarea
+                  id="receta-desc"
+                  placeholder="Breve descripción de la receta..."
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label>Tiempo (minutos)</label>
+                <input
+                  type="number"
+                  id="receta-tiempo"
+                  min="1"
+                  placeholder="30"
+                />
+              </div>
+              <div class="form-group">
+                <label>Dificultad</label>
+                <select id="receta-dificultad">
+                  <option value="fácil">Fácil</option>
+                  <option value="media">Media</option>
+                  <option value="difícil">Difícil</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Porciones</label>
+                <input
+                  type="number"
+                  id="receta-porciones"
+                  min="1"
+                  placeholder="4"
+                />
+              </div>
+              <div class="form-group">
+                <label>Categoría</label>
+                <select id="receta-categoria"></select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="guardarReceta()">
+                Guardar receta
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="cancelarEdicionReceta()"
+                id="btn-cancelar-receta"
+                style="display: none"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-bar" id="filtros-categoria"></div>
+          <div class="cards-grid" id="lista-recetas"></div>
+        </div>
+      </section>
+
+      <!-- ─── SECCIÓN CATEGORÍAS ──────────────────────────── -->
+      <section id="section-categorias" class="section">
+        <div class="container">
+          <div class="section-header">
+            <h2>Categorías</h2>
+          </div>
+
+          <div class="form-card">
+            <h3 id="form-cat-title">➕ Nueva categoría</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="cat-nombre" placeholder="Ej: Sopas" />
+              </div>
+              <div class="form-group">
+                <label>Color</label>
+                <input type="color" id="cat-color" value="#6366F1" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="guardarCategoria()">
+                Guardar categoría
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="cancelarEdicionCategoria()"
+                id="btn-cancelar-cat"
+                style="display: none"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+
+          <div id="lista-categorias"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <span class="logo">🍽️</span>
+          <h3>Recetario</h3>
+          <p>
+            Tu espacio para descubrir, guardar y compartir las mejores recetas
+            de cocina casera.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <h4>Enlaces</h4>
+          <ul>
+            <li>
+              <a href="#" onclick="showSection('inicio', event)">Inicio</a>
+            </li>
+            <li>
+              <a href="#" onclick="showSection('recetas', event)"
+                >Mis recetas</a
+              >
+            </li>
+            <li>
+              <a href="#" onclick="filtrarDesdeNav('entrada', event)"
+                >Entradas</a
+              >
+            </li>
+            <li>
+              <a href="#" onclick="filtrarDesdeNav('principal', event)"
+                >Platos principales</a
+              >
+            </li>
+            <li>
+              <a href="#" onclick="filtrarDesdeNav('postre', event)">Postres</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-contact">
+          <h4>Contacto</h4>
+          <ul>
+            <li>📧 hola@recetario.com</li>
+            <li>📍 Buenos Aires, Argentina</li>
+            <li>🕐 Lun–Vie 9:00 – 18:00</li>
+          </ul>
+        </div>
+
+        <div class="footer-social">
+          <h4>Seguinos</h4>
+          <div class="social-icons">
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener"
+              aria-label="Instagram"
+              title="Instagram"
+              >📷</a
+            >
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener"
+              aria-label="Facebook"
+              title="Facebook"
+              >👍</a
+            >
+            <a
+              href="https://youtube.com"
+              target="_blank"
+              rel="noopener"
+              aria-label="YouTube"
+              title="YouTube"
+              >▶️</a
+            >
+            <a
+              href="https://tiktok.com"
+              target="_blank"
+              rel="noopener"
+              aria-label="TikTok"
+              title="TikTok"
+              >🎵</a
+            >
+            <a
+              href="https://pinterest.com"
+              target="_blank"
+              rel="noopener"
+              aria-label="Pinterest"
+              title="Pinterest"
+              >📌</a
+            >
+          </div>
+          <p class="newsletter-text">
+            Suscribite al newsletter y recibí recetas semanales.
+          </p>
+          <form class="newsletter-form" onsubmit="suscribirNewsletter(event)">
+            <input type="email" placeholder="tu@email.com" required />
+            <button type="submit" class="btn btn-primary">Suscribirme</button>
+          </form>
         </div>
       </div>
 
-      <ul class="ing-list" id="lista-ingredientes"></ul>
+      <div class="footer-bottom">
+        <div class="container">
+          <p>© 2026 Recetario · Hecho con ❤️ para amantes de la cocina</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ═══════════════ MODAL INGREDIENTES ═══════════════ -->
+    <div class="modal-overlay" id="modal-ingredientes">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modal-receta-nombre">Ingredientes</h3>
+          <button class="modal-close" onclick="cerrarModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-card" style="margin-bottom: 16px">
+            <h3 id="form-ing-title">➕ Agregar ingrediente</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="ing-nombre" placeholder="Ej: Harina" />
+              </div>
+              <div class="form-group">
+                <label>Cantidad</label>
+                <input
+                  type="number"
+                  id="ing-cantidad"
+                  min="0.1"
+                  step="0.1"
+                  placeholder="250"
+                />
+              </div>
+              <div class="form-group">
+                <label>Unidad</label>
+                <select id="ing-unidad">
+                  <option value="g">g</option>
+                  <option value="kg">kg</option>
+                  <option value="ml">ml</option>
+                  <option value="l">l</option>
+                  <option value="taza">taza</option>
+                  <option value="cdta">cdta</option>
+                  <option value="cda">cda</option>
+                  <option value="unidad">unidad</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="guardarIngrediente()">
+                Agregar
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="cancelarEdicionIngrediente()"
+                id="btn-cancelar-ing"
+                style="display: none"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+
+          <ul class="ing-list" id="lista-ingredientes"></ul>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<!-- ═══════════════ TOAST ═══════════════ -->
-<div id="toast"></div>
+    <!-- ═══════════════ MODAL AUTH ═══════════════ -->
+    <div class="modal-overlay" id="modal-auth">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h3 id="auth-title">Iniciar sesión</h3>
+          <button class="modal-close" onclick="cerrarModalAuth()">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="auth-form" onsubmit="enviarAuth(event)">
+            <div class="form-group" style="margin-bottom: 12px">
+              <label>Email</label>
+              <input
+                type="email"
+                id="auth-email"
+                placeholder="tu@email.com"
+                required
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px">
+              <label>Contraseña</label>
+              <input
+                type="password"
+                id="auth-password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <div
+              class="form-group"
+              id="auth-nombre-group"
+              style="margin-bottom: 12px; display: none"
+            >
+              <label>Nombre</label>
+              <input type="text" id="auth-nombre" placeholder="Tu nombre" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%">
+              Continuar
+            </button>
+          </form>
+          <p class="auth-switch" id="auth-switch"></p>
+        </div>
+      </div>
+    </div>
 
-<script src="app.js"></script>
-</body>
+    <!-- ═══════════════ TOAST ═══════════════ -->
+    <div id="toast"></div>
+
+    <script src="app.js"></script>
+  </body>
 </html>

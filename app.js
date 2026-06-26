@@ -1,6 +1,3 @@
-// ══════════════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════════════
 const BASE = "http://localhost:3000";
 
 let editandoRecetaId      = null;
@@ -10,9 +7,8 @@ let recetaActivaId        = null;
 let categorias            = [];
 let filtroCategoriaId     = null;
 
-// ══════════════════════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════════════════════
+// utiles
+
 function mostrarToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg;
@@ -20,11 +16,14 @@ function mostrarToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2500);
 }
 
-// Comparar IDs siempre como string — evita bugs number vs string
+// evitar errores cuando un id es numero y otro texto
+
 function idIgual(a, b) {
   return String(a) === String(b);
 }
 
+
+// cambia entre las distinas pantallas, para no estar recargando
 function showSection(nombre, e) {
   if (e) e.preventDefault();
   document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
@@ -42,11 +41,13 @@ function showSection(nombre, e) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ══════════════════════════════════════════════════════
+
 //  CARRUSEL
-// ══════════════════════════════════════════════════════
+
 let carouselIndex = 0;
 let carouselTimer = null;
+
+// 
 
 function initCarrusel() {
   const slides = document.querySelectorAll(".carousel-slide");
@@ -78,9 +79,7 @@ function moverCarrusel(dir) {
   carouselTimer = setInterval(() => moverCarrusel(1), 5000);
 }
 
-// ══════════════════════════════════════════════════════
 //  BUSCADOR & FILTROS DESTACADAS
-// ══════════════════════════════════════════════════════
 const MAPA_CATEGORIAS = { entrada: "entrada", principal: "principal", postre: "postre" };
 
 async function buscarRecetas(query) {
@@ -153,7 +152,7 @@ function filtrarDesdeNav(tipo, e) {
 }
 
 // ══════════════════════════════════════════════════════
-//  AUTH (UI)
+// login
 // ══════════════════════════════════════════════════════
 let authModo = "login";
 
@@ -286,30 +285,106 @@ async function cargarCategorias() {
   poblarSelectCategorias();
 }
 
+let catActivaId = null;
+
 function renderizarCategorias() {
-  const lista = document.getElementById("lista-categorias");
+  const tabs = document.getElementById("cat-tabs");
+  if (!tabs) return;
+
   if (categorias.length === 0) {
-    lista.innerHTML = `<div class="empty"><div class="icon">🏷️</div>No hay categorías todavía.</div>`;
+    tabs.innerHTML = `<div class="empty"><div class="icon">🏷️</div>No hay categorías todavía.</div>`;
+    document.getElementById("cat-recetas-contenedor").innerHTML = "";
     return;
   }
-  lista.innerHTML = "";
-  categorias.forEach((cat) => {
-    const div = document.createElement("div");
-    div.className = "cat-item";
-    div.innerHTML = `
-      <span class="cat-name">
-        <span class="cat-dot" style="background:${cat.color}"></span>
-        ${cat.nombre}
-      </span>
-      <div class="cat-actions">
-        <button class="btn btn-sm btn-edit">Editar</button>
-        <button class="btn btn-sm btn-danger">Eliminar</button>
-      </div>
-    `;
-    div.querySelector(".btn-edit").addEventListener("click", () => editarCategoria(cat.id));
-    div.querySelector(".btn-danger").addEventListener("click", () => eliminarCategoria(cat.id));
-    lista.appendChild(div);
+
+  tabs.innerHTML = "";
+
+  // Tab "Todas"
+  const btnTodas = document.createElement("button");
+  btnTodas.className = "cat-tab" + (catActivaId === null ? " active" : "");
+  btnTodas.textContent = "Todas";
+  btnTodas.addEventListener("click", () => seleccionarCatTab(null));
+  tabs.appendChild(btnTodas);
+
+  categorias.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "cat-tab" + (idIgual(catActivaId, cat.id) ? " active" : "");
+    btn.innerHTML = `<span class="cat-dot" style="background:${cat.color};display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle"></span>${cat.nombre}`;
+    btn.addEventListener("click", () => seleccionarCatTab(cat.id));
+    tabs.appendChild(btn);
   });
+
+  // Renderizar recetas de la categoría activa
+  renderizarRecetasPorCategoria();
+}
+
+async function seleccionarCatTab(id) {
+  catActivaId = id;
+  renderizarCategorias();
+}
+
+async function renderizarRecetasPorCategoria() {
+  const contenedor = document.getElementById("cat-recetas-contenedor");
+  const { data: todasRecetas } = await axios.get(`${BASE}/recetas`);
+
+  const filtradas = catActivaId !== null
+    ? todasRecetas.filter(r => idIgual(r.categoriaId, catActivaId))
+    : todasRecetas;
+
+  if (filtradas.length === 0) {
+    contenedor.innerHTML = `<div class="empty" style="margin-top:20px"><div class="icon">🍳</div>No hay recetas en esta categoría.</div>`;
+    return;
+  }
+
+  contenedor.innerHTML = "";
+
+  // Si es "Todas", agrupar por categoría
+  if (catActivaId === null) {
+    categorias.forEach(cat => {
+      const recetasCat = filtradas.filter(r => idIgual(r.categoriaId, cat.id));
+      if (recetasCat.length === 0) return;
+
+      const grupo = document.createElement("div");
+      grupo.className = "cat-grupo";
+      grupo.innerHTML = `
+        <div class="cat-grupo-header">
+          <span class="cat-dot-lg" style="background:${cat.color}"></span>
+          <h3>${cat.nombre}</h3>
+          <div class="cat-grupo-actions">
+            <button class="btn btn-sm btn-edit">✏️ Editar</button>
+            <button class="btn btn-sm btn-danger">🗑️ Eliminar</button>
+          </div>
+        </div>
+        <div class="cards-grid cat-cards"></div>
+      `;
+      grupo.querySelector(".btn-edit").addEventListener("click", () => abrirModalCategoria(cat.id));
+      grupo.querySelector(".btn-danger").addEventListener("click", () => eliminarCategoria(cat.id));
+
+      const grid = grupo.querySelector(".cat-cards");
+      recetasCat.forEach(receta => grid.appendChild(crearCardReceta(receta)));
+      contenedor.appendChild(grupo);
+    });
+  } else {
+    const cat = categorias.find(c => idIgual(c.id, catActivaId));
+    const grupo = document.createElement("div");
+    grupo.className = "cat-grupo";
+    grupo.innerHTML = `
+      <div class="cat-grupo-header">
+        <span class="cat-dot-lg" style="background:${cat?.color || '#ccc'}"></span>
+        <h3>${cat?.nombre || ""}</h3>
+        <div class="cat-grupo-actions">
+          <button class="btn btn-sm btn-edit">✏️ Editar</button>
+          <button class="btn btn-sm btn-danger">🗑️ Eliminar</button>
+        </div>
+      </div>
+      <div class="cards-grid cat-cards"></div>
+    `;
+    grupo.querySelector(".btn-edit").addEventListener("click", () => abrirModalCategoria(cat.id));
+    grupo.querySelector(".btn-danger").addEventListener("click", () => eliminarCategoria(cat.id));
+    const grid = grupo.querySelector(".cat-cards");
+    filtradas.forEach(receta => grid.appendChild(crearCardReceta(receta)));
+    contenedor.appendChild(grupo);
+  }
 }
 
 function poblarSelectCategorias() {
@@ -370,7 +445,7 @@ async function guardarCategoria() {
     await axios.post(`${BASE}/categorias`, { nombre, color });
     mostrarToast("✅ Categoría creada");
   }
-  limpiarFormCategoria();
+  cerrarModalCategoria();
   await cargarCategorias();
 }
 
@@ -415,54 +490,52 @@ async function cargarRecetas() {
   renderizarRecetas(res.data);
 }
 
+function crearCardReceta(receta) {
+  const catColor  = getColorCategoria(receta.categoriaId);
+  const catNombre = getNombreCategoria(receta.categoriaId);
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    ${receta.imagen ? `<img src="${receta.imagen}" alt="${receta.nombre}" class="card-img" onerror="this.style.display='none'" />` : ""}
+    <div class="card-header" style="border-top:3px solid ${catColor}">
+      <h3>${receta.nombre}</h3>
+      <div class="meta">
+        ${badgeDificultad(receta.dificultad)}
+        <span class="badge badge-cat" style="color:${catColor}">${catNombre}</span>
+      </div>
+      <div class="meta" style="margin-top:6px">
+        <span>⏱ ${receta.tiempo} min</span>
+        <span>🍽 ${receta.porciones} porciones</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--text-muted)">${receta.descripcion || ""}</p>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-sm">🧂 Ingredientes</button>
+      <button class="btn btn-sm btn-edit">Editar</button>
+      <button class="btn btn-sm btn-danger">Eliminar</button>
+    </div>
+  `;
+  const [btnIng, btnEdit, btnDel] = card.querySelectorAll(".card-footer .btn");
+  btnIng.addEventListener("click",  () => abrirIngredientes(receta.id, receta.nombre));
+  btnEdit.addEventListener("click", () => { abrirModalReceta(); editarReceta(receta.id); });
+  btnDel.addEventListener("click",  () => eliminarReceta(receta.id));
+  return card;
+}
+
 function renderizarRecetas(lista) {
   const contenedor = document.getElementById("lista-recetas");
   const filtradas  = filtroCategoriaId !== null
-    ? lista.filter((r) => idIgual(r.categoriaId, filtroCategoriaId))
+    ? lista.filter(r => idIgual(r.categoriaId, filtroCategoriaId))
     : lista;
 
   if (filtradas.length === 0) {
     contenedor.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="icon">🍳</div>No hay recetas todavía. ¡Crea la primera!</div>`;
     return;
   }
-
   contenedor.innerHTML = "";
-  filtradas.forEach((receta) => {
-    const catColor  = getColorCategoria(receta.categoriaId);
-    const catNombre = getNombreCategoria(receta.categoriaId);
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      ${receta.imagen ? `<img src="${receta.imagen}" alt="${receta.nombre}" class="card-img" onerror="this.style.display='none'" />` : ""}
-      <div class="card-header" style="border-top: 3px solid ${catColor}">
-        <h3>${receta.nombre}</h3>
-        <div class="meta">
-          ${badgeDificultad(receta.dificultad)}
-          <span class="badge badge-cat" style="color:${catColor}">${catNombre}</span>
-        </div>
-        <div class="meta" style="margin-top:6px">
-          <span>⏱ ${receta.tiempo} min</span>
-          <span>🍽 ${receta.porciones} porciones</span>
-        </div>
-      </div>
-      <div class="card-body">
-        <p style="font-size:13px;color:var(--text-muted)">${receta.descripcion || ""}</p>
-      </div>
-      <div class="card-footer">
-        <button class="btn btn-sm">🧂 Ingredientes</button>
-        <button class="btn btn-sm btn-edit">Editar</button>
-        <button class="btn btn-sm btn-danger">Eliminar</button>
-      </div>
-    `;
-
-    const [btnIng, btnEdit, btnDel] = card.querySelectorAll(".card-footer .btn");
-    btnIng.addEventListener("click",  () => abrirIngredientes(receta.id, receta.nombre));
-    btnEdit.addEventListener("click", () => editarReceta(receta.id));
-    btnDel.addEventListener("click",  () => eliminarReceta(receta.id));
-
-    contenedor.appendChild(card);
-  });
+  filtradas.forEach(receta => contenedor.appendChild(crearCardReceta(receta)));
 }
 
 async function guardarReceta() {
@@ -509,7 +582,7 @@ async function guardarReceta() {
       mostrarToast("✅ Receta creada");
     }
 
-    limpiarFormReceta();
+    cerrarModalReceta();
     await cargarRecetas();
   } catch (err) {
     console.error("Error al guardar receta:", err);
@@ -528,13 +601,9 @@ async function editarReceta(id) {
   document.getElementById("receta-dificultad").value = r.dificultad;
   document.getElementById("receta-porciones").value  = r.porciones;
   document.getElementById("receta-categoria").value  = r.categoriaId;
-  document.getElementById("form-receta-title").textContent = "✏️ Editar receta";
-  document.getElementById("btn-cancelar-receta").style.display = "inline-block";
-
-  // Mostrar imagen actual si tiene
+  document.getElementById("modal-receta-title").textContent = "✏️ Editar receta";
   mostrarPreviewImagen(r.imagen || "");
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  document.getElementById("modal-receta").classList.add("open");
 }
 
 async function eliminarReceta(id) {
@@ -557,8 +626,8 @@ function limpiarFormReceta() {
   const fileInput = document.getElementById("receta-imagen");
   if (fileInput) fileInput.value = "";
   mostrarPreviewImagen("");
-  document.getElementById("form-receta-title").textContent = "➕ Nueva receta";
-  document.getElementById("btn-cancelar-receta").style.display = "none";
+  const title = document.getElementById("modal-receta-title");
+  if (title) title.textContent = "➕ Nueva receta";
   editandoRecetaId = null;
 }
 
@@ -669,6 +738,12 @@ document.getElementById("modal-ingredientes").addEventListener("click", function
 document.getElementById("modal-auth").addEventListener("click", function(e) {
   if (e.target === this) cerrarModalAuth();
 });
+document.getElementById("modal-receta").addEventListener("click", function(e) {
+  if (e.target === this) cerrarModalReceta();
+});
+document.getElementById("modal-categoria").addEventListener("click", function(e) {
+  if (e.target === this) cerrarModalCategoria();
+});
 
 // ── Nav mobile ──────────────────────────────────────────
 document.getElementById("nav-toggle")?.addEventListener("click", () => {
@@ -686,6 +761,46 @@ document.getElementById("receta-imagen")?.addEventListener("change", function() 
     mostrarPreviewImagen(url);
   }
 });
+
+
+// ── Modal Receta ────────────────────────────────────────
+function abrirModalReceta(id = null) {
+  if (id) {
+    editarReceta(id); // carga datos y luego abre
+  } else {
+    limpiarFormReceta();
+    document.getElementById("modal-receta-title").textContent = "➕ Nueva receta";
+  }
+  document.getElementById("modal-receta").classList.add("open");
+}
+
+function cerrarModalReceta() {
+  document.getElementById("modal-receta").classList.remove("open");
+  limpiarFormReceta();
+}
+
+
+// ── Modal Categoría ─────────────────────────────────────
+function abrirModalCategoria(id = null) {
+  if (id) {
+    const cat = categorias.find(c => idIgual(c.id, id));
+    if (cat) {
+      editandoCategoriaId = cat.id;
+      document.getElementById("cat-nombre").value = cat.nombre;
+      document.getElementById("cat-color").value  = cat.color;
+      document.getElementById("modal-cat-title").textContent = "✏️ Editar categoría";
+    }
+  } else {
+    limpiarFormCategoria();
+    document.getElementById("modal-cat-title").textContent = "➕ Nueva categoría";
+  }
+  document.getElementById("modal-categoria").classList.add("open");
+}
+
+function cerrarModalCategoria() {
+  document.getElementById("modal-categoria").classList.remove("open");
+  limpiarFormCategoria();
+}
 
 // ══════════════════════════════════════════════════════
 //  INIT

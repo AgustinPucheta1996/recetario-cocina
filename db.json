@@ -1,16 +1,6 @@
 {
   "recetas": [
     {
-      "nombre": "Tamal",
-      "descripcion": "tamales clasicos",
-      "tiempo": 30,
-      "dificultad": "media",
-      "porciones": 12,
-      "categoriaId": "hW7MmdD80UY",
-      "imagen": "img/tamales.png",
-      "id": "8NuMLaV5EkY"
-    },
-    {
       "nombre": "Coca Cola",
       "descripcion": "Coca cola 2,5",
       "tiempo": 1,
@@ -49,6 +39,26 @@
       "categoriaId": "hW7MmdD80UY",
       "imagen": "img/asado.jpg",
       "id": "d_QgTqUthO0"
+    },
+    {
+      "nombre": "Pizzas",
+      "descripcion": "Pizas caseras",
+      "tiempo": 15,
+      "dificultad": "fácil",
+      "porciones": 8,
+      "categoriaId": "3",
+      "imagen": "img/piza.jpg",
+      "id": "jGqBhlLtn20"
+    },
+    {
+      "nombre": "Pepsi",
+      "descripcion": "Pespi 500ml",
+      "tiempo": 1,
+      "dificultad": "fácil",
+      "porciones": 1,
+      "categoriaId": "4",
+      "imagen": "img/pepsi.webp",
+      "id": "3UkUQY_Qb1M"
     }
   ],
   "categorias": [
@@ -71,11 +81,6 @@
       "nombre": "Platos Principales",
       "color": "#4144c8",
       "id": "hW7MmdD80UY"
-    },
-    {
-      "nombre": "SAmu",
-      "color": "#ff0000",
-      "id": "9CHE2ZgxPUY"
     }
   ],
   "ingredientes": [
@@ -99,6 +104,41 @@
       "unidad": "g",
       "recetaId": "JTOPyU_NMlU",
       "id": "G4w6x5mn8xM"
+    },
+    {
+      "nombre": "Lourdes",
+      "cantidad": 1,
+      "unidad": "unidad",
+      "recetaId": "JTOPyU_NMlU",
+      "id": "o3EnAG2ztqU"
+    },
+    {
+      "nombre": "Harina",
+      "cantidad": 500,
+      "unidad": "g",
+      "recetaId": "jGqBhlLtn20",
+      "id": "Yw8XeQt5nRw"
+    },
+    {
+      "nombre": "Queso",
+      "cantidad": 250,
+      "unidad": "g",
+      "recetaId": "jGqBhlLtn20",
+      "id": "p7JMkD00ILA"
+    },
+    {
+      "nombre": "levadura",
+      "cantidad": 10,
+      "unidad": "g",
+      "recetaId": "jGqBhlLtn20",
+      "id": "aDkiMJoMvk4"
+    },
+    {
+      "nombre": "Tomate",
+      "cantidad": 1,
+      "unidad": "unidad",
+      "recetaId": "jGqBhlLtn20",
+      "id": "irtkpKnd_GM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

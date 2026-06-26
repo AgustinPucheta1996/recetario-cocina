@@ -44,22 +44,7 @@
             >Categorías</a
           >
 
-          <div class="nav-dropdown">
-            <button class="nav-link nav-dropdown-btn" type="button">
-              Categorías <span class="arrow">▾</span>
-            </button>
-            <div class="nav-dropdown-menu">
-              <a href="#" onclick="filtrarDesdeNav('entrada', event)"
-                >🥟 Entradas</a
-              >
-              <a href="#" onclick="filtrarDesdeNav('principal', event)"
-                >🥩 Platos principales</a
-              >
-              <a href="#" onclick="filtrarDesdeNav('postre', event)"
-                >🍮 Postres</a
-              >
-            </div>
-          </div>
+        
 
           <div class="nav-search">
             <input
@@ -305,77 +290,20 @@
       <!-- ─── SECCIÓN RECETAS ─────────────────────────────── -->
       <section id="section-recetas" class="section">
         <div class="container">
-          <div class="form-card">
-            <h3 id="form-receta-title">➕ Nueva receta</h3>
-            <div class="form-grid">
-              <div class="form-group full">
-                <label>Nombre</label>
-                <input
-                  type="text"
-                  id="receta-nombre"
-                  placeholder="Ej: Empanadas tucumanas"
-                />
-              </div>
-              <div class="form-group full">
-                <label>Descripción</label>
-                <textarea
-                  id="receta-desc"
-                  placeholder="Breve descripción de la receta..."
-                ></textarea>
-              </div>
-              <div class="form-group">
-                <label>Tiempo (minutos)</label>
-                <input
-                  type="number"
-                  id="receta-tiempo"
-                  min="1"
-                  placeholder="30"
-                />
-              </div>
-              <div class="form-group">
-                <label>Dificultad</label>
-                <select id="receta-dificultad">
-                  <option value="fácil">Fácil</option>
-                  <option value="media">Media</option>
-                  <option value="difícil">Difícil</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Porciones</label>
-                <input
-                  type="number"
-                  id="receta-porciones"
-                  min="1"
-                  placeholder="4"
-                />
-              </div>
-              <div class="form-group">
-                <label>Categoría</label>
-                <select id="receta-categoria"></select>
-              </div>
-              <div class="form-group full">
-                <label>Imagen de la receta (opcional)</label>
-                <input type="file" id="receta-imagen" accept="image/*" />
-                <img id="receta-imagen-preview" src="" alt="Preview" style="display:none;margin-top:8px;max-height:160px;border-radius:6px;object-fit:cover;" />
-              </div>
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-primary" onclick="guardarReceta()">
-                Guardar receta
+          <div class="recetas-layout">
+            <!-- Sidebar filtros -->
+            <aside class="recetas-sidebar">
+              <h3 class="sidebar-title">Categorías</h3>
+              <div class="filter-bar-vertical" id="filtros-categoria"></div>
+              <button class="btn btn-primary btn-nueva-receta" onclick="abrirModalReceta()">
+                ➕ Agregar receta
               </button>
-              <button
-                class="btn btn-secondary"
-                onclick="cancelarEdicionReceta()"
-                id="btn-cancelar-receta"
-                style="display: none"
-              >
-                Cancelar
-              </button>
+            </aside>
+            <!-- Grid recetas -->
+            <div class="recetas-main">
+              <div class="cards-grid" id="lista-recetas"></div>
             </div>
           </div>
-
-          <div class="filter-bar" id="filtros-categoria"></div>
-          <div class="cards-grid" id="lista-recetas"></div>
         </div>
       </section>
 
@@ -385,35 +313,16 @@
           <div class="section-header">
             <h2>Categorías</h2>
           </div>
-
-          <div class="form-card">
-            <h3 id="form-cat-title">➕ Nueva categoría</h3>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Nombre</label>
-                <input type="text" id="cat-nombre" placeholder="Ej: Sopas" />
-              </div>
-              <div class="form-group">
-                <label>Color</label>
-                <input type="color" id="cat-color" value="#6366F1" />
-              </div>
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-primary" onclick="guardarCategoria()">
-                Guardar categoría
-              </button>
-              <button
-                class="btn btn-secondary"
-                onclick="cancelarEdicionCategoria()"
-                id="btn-cancelar-cat"
-                style="display: none"
-              >
-                Cancelar
-              </button>
-            </div>
+          <!-- Tabs de categorías clickeables -->
+          <div class="cat-tabs" id="cat-tabs"></div>
+          <!-- Recetas de la categoría activa -->
+          <div id="cat-recetas-contenedor"></div>
+          <!-- Botón nueva categoría abajo -->
+          <div class="cat-footer-actions">
+            <button class="btn btn-primary" onclick="abrirModalCategoria()">
+              ➕ Nueva categoría
+            </button>
           </div>
-
-          <div id="lista-categorias"></div>
         </div>
       </section>
     </main>
@@ -618,6 +527,83 @@
             </button>
           </form>
           <p class="auth-switch" id="auth-switch"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ MODAL NUEVA RECETA ═══════════════ -->
+    <div class="modal-overlay" id="modal-receta">
+      <div class="modal modal-lg">
+        <div class="modal-header">
+          <h3 id="modal-receta-title">➕ Nueva receta</h3>
+          <button class="modal-close" onclick="cerrarModalReceta()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Nombre</label>
+              <input type="text" id="receta-nombre" placeholder="Ej: Empanadas tucumanas" />
+            </div>
+            <div class="form-group full">
+              <label>Descripción</label>
+              <textarea id="receta-desc" placeholder="Breve descripción de la receta..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Tiempo (minutos)</label>
+              <input type="number" id="receta-tiempo" min="1" placeholder="30" />
+            </div>
+            <div class="form-group">
+              <label>Dificultad</label>
+              <select id="receta-dificultad">
+                <option value="fácil">Fácil</option>
+                <option value="media">Media</option>
+                <option value="difícil">Difícil</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Porciones</label>
+              <input type="number" id="receta-porciones" min="1" placeholder="4" />
+            </div>
+            <div class="form-group">
+              <label>Categoría</label>
+              <select id="receta-categoria"></select>
+            </div>
+            <div class="form-group full">
+              <label>Imagen (opcional)</label>
+              <input type="file" id="receta-imagen" accept="image/*" />
+              <img id="receta-imagen-preview" src="" alt="Preview" style="display:none;margin-top:8px;max-height:160px;border-radius:6px;object-fit:cover;" />
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:16px">
+            <button class="btn btn-primary" onclick="guardarReceta()">Guardar receta</button>
+            <button class="btn btn-secondary" onclick="cerrarModalReceta()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ MODAL NUEVA CATEGORÍA ═══════════════ -->
+    <div class="modal-overlay" id="modal-categoria">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h3 id="modal-cat-title">➕ Nueva categoría</h3>
+          <button class="modal-close" onclick="cerrarModalCategoria()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Nombre</label>
+              <input type="text" id="cat-nombre" placeholder="Ej: Sopas" />
+            </div>
+            <div class="form-group full">
+              <label>Color</label>
+              <input type="color" id="cat-color" value="#6366F1" />
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:16px">
+            <button class="btn btn-primary" onclick="guardarCategoria()">Guardar categoría</button>
+            <button class="btn btn-secondary" onclick="cerrarModalCategoria()">Cancelar</button>
+          </div>
         </div>
       </div>
     </div>

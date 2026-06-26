@@ -19,6 +19,36 @@
       "categoriaId": "4",
       "imagen": "img/coca.webp",
       "id": "JTOPyU_NMlU"
+    },
+    {
+      "nombre": "Flan casero",
+      "descripcion": "Postre clásico argentino con caramelo dorado y textura sedosa. Ideal para cerrar cualquier comida con dulzura.",
+      "tiempo": 90,
+      "dificultad": "fácil",
+      "porciones": 8,
+      "categoriaId": "1",
+      "imagen": "img/flan.jpg",
+      "id": "53gWJLIb88c"
+    },
+    {
+      "nombre": "Empanadas criollas",
+      "descripcion": "Masa casera rellena de carne cortada a cuchillo con huevo, aceitunas y especias. Imprescindibles en cualquier reunión.",
+      "tiempo": 75,
+      "dificultad": "media",
+      "porciones": 12,
+      "categoriaId": "3",
+      "imagen": "img/empanadas-1.jpg",
+      "id": "qSOiUo3Jf0A"
+    },
+    {
+      "nombre": "Asado Argentino",
+      "descripcion": "Corte de costillar a la parrilla con sal gruesa y chimichurri. La receta estrella de los domingos en familia.",
+      "tiempo": 180,
+      "dificultad": "media",
+      "porciones": 6,
+      "categoriaId": "hW7MmdD80UY",
+      "imagen": "img/asado.jpg",
+      "id": "d_QgTqUthO0"
     }
   ],
   "categorias": [
@@ -41,6 +71,11 @@
       "nombre": "Platos Principales",
       "color": "#4144c8",
       "id": "hW7MmdD80UY"
+    },
+    {
+      "nombre": "SAmu",
+      "color": "#ff0000",
+      "id": "9CHE2ZgxPUY"
     }
   ],
   "ingredientes": [

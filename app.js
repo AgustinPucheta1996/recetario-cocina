@@ -123,6 +123,35 @@ function filtrarDesdeNav(tipo, e) {
 // ══════════════════════════════════════════════════════
 let authModo = "login";
 
+// Usuarios simulados
+const USUARIOS = [
+  { email: "admin@recetario.com", password: "1234", nombre: "Admin" },
+  { email: "usuario@test.com",    password: "1234", nombre: "Usuario" }
+];
+let usuarioActual = null;
+
+function actualizarNavAuth() {
+  const navAuth = document.getElementById("nav-auth");
+  if (!navAuth) return;
+  if (usuarioActual) {
+    navAuth.innerHTML = `
+      <span style="font-size:13px;font-weight:600;color:var(--text)">👤 ${usuarioActual.nombre}</span>
+      <button class="btn btn-outline" onclick="cerrarSesion()">Cerrar sesión</button>
+    `;
+  } else {
+    navAuth.innerHTML = `
+      <button class="btn btn-outline" onclick="abrirModalAuth('login')">Iniciar sesión</button>
+      <button class="btn btn-primary" onclick="abrirModalAuth('register')">Registrarse</button>
+    `;
+  }
+}
+
+function cerrarSesion() {
+  usuarioActual = null;
+  actualizarNavAuth();
+  mostrarToast("👋 Sesión cerrada");
+}
+
 function abrirModalAuth(modo) {
   authModo = modo;
   const esRegistro = modo === "register";
@@ -141,9 +170,30 @@ function cerrarModalAuth() {
 
 function enviarAuth(e) {
   e.preventDefault();
-  const email = document.getElementById("auth-email").value;
-  cerrarModalAuth();
-  mostrarToast(authModo === "register" ? `✅ ¡Bienvenido/a! Cuenta creada para ${email}` : `✅ Sesión iniciada. ¡Hola de nuevo!`);
+  const email    = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  const nombre   = document.getElementById("auth-nombre")?.value.trim();
+
+  if (authModo === "login") {
+    const encontrado = USUARIOS.find(u => u.email === email && u.password === password);
+    if (encontrado) {
+      usuarioActual = encontrado;
+      cerrarModalAuth();
+      actualizarNavAuth();
+      mostrarToast(`✅ ¡Bienvenido/a, ${encontrado.nombre}!`);
+    } else {
+      mostrarToast("❌ Email o contraseña incorrectos");
+    }
+  } else {
+    // Registro simulado
+    if (!nombre) { mostrarToast("⚠️ Ingresá tu nombre"); return; }
+    const nuevoUsuario = { email, password, nombre };
+    USUARIOS.push(nuevoUsuario);
+    usuarioActual = nuevoUsuario;
+    cerrarModalAuth();
+    actualizarNavAuth();
+    mostrarToast(`✅ ¡Cuenta creada! Bienvenido/a, ${nombre}`);
+  }
 }
 
 function suscribirNewsletter(e) {
@@ -357,41 +407,50 @@ function renderizarRecetas(lista) {
 }
 
 async function guardarReceta() {
-  const nombre      = document.getElementById("receta-nombre").value.trim();
-  const descripcion = document.getElementById("receta-desc").value.trim();
-  const tiempo      = parseInt(document.getElementById("receta-tiempo").value);
-  const dificultad  = document.getElementById("receta-dificultad").value;
-  const porciones   = parseInt(document.getElementById("receta-porciones").value);
-  const categoriaId = document.getElementById("receta-categoria").value;
-  const fileInput   = document.getElementById("receta-imagen");
+  try {
+    const nombre      = document.getElementById("receta-nombre").value.trim();
+    const descripcion = document.getElementById("receta-desc").value.trim();
+    const tiempo      = parseInt(document.getElementById("receta-tiempo").value);
+    const dificultad  = document.getElementById("receta-dificultad").value;
+    const porciones   = parseInt(document.getElementById("receta-porciones").value);
+    const categoriaId = document.getElementById("receta-categoria").value;
+    const fileInput   = document.getElementById("receta-imagen");
 
-  if (!nombre || !tiempo || !porciones) {
-    mostrarToast("⚠️ Completá los campos obligatorios");
-    return;
+    if (!nombre || !tiempo || !porciones) {
+      mostrarToast("⚠️ Completá nombre, tiempo y porciones");
+      return;
+    }
+
+    if (!categoriaId) {
+      mostrarToast("⚠️ Seleccioná una categoría");
+      return;
+    }
+
+    // Leer imagen si se seleccionó una
+    let imagen = "";
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      imagen = await leerImagenComoBase64(fileInput.files[0]);
+    } else if (editandoRecetaId) {
+      const resActual = await axios.get(`${BASE}/recetas/${editandoRecetaId}`);
+      imagen = resActual.data.imagen || "";
+    }
+
+    const datos = { nombre, descripcion, tiempo, dificultad, porciones, categoriaId, imagen };
+
+    if (editandoRecetaId) {
+      await axios.patch(`${BASE}/recetas/${editandoRecetaId}`, datos);
+      mostrarToast("✅ Receta actualizada");
+    } else {
+      await axios.post(`${BASE}/recetas`, datos);
+      mostrarToast("✅ Receta creada");
+    }
+
+    limpiarFormReceta();
+    await cargarRecetas();
+  } catch (err) {
+    console.error("Error al guardar receta:", err);
+    mostrarToast("❌ Error al guardar. ¿Está corriendo json-server?");
   }
-
-  // Leer imagen si se seleccionó una
-  let imagen = "";
-  if (fileInput && fileInput.files[0]) {
-    imagen = await leerImagenComoBase64(fileInput.files[0]);
-  } else if (editandoRecetaId) {
-    // Si estamos editando y no cambiaron la imagen, conservar la que ya tenía
-    const resActual = await axios.get(`${BASE}/recetas/${editandoRecetaId}`);
-    imagen = resActual.data.imagen || "";
-  }
-
-  const datos = { nombre, descripcion, tiempo, dificultad, porciones, categoriaId, imagen };
-
-  if (editandoRecetaId) {
-    await axios.patch(`${BASE}/recetas/${editandoRecetaId}`, datos);
-    mostrarToast("✅ Receta actualizada");
-  } else {
-    await axios.post(`${BASE}/recetas`, datos);
-    mostrarToast("✅ Receta creada");
-  }
-
-  limpiarFormReceta();
-  await cargarRecetas();
 }
 
 async function editarReceta(id) {

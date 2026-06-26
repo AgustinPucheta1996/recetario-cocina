@@ -83,17 +83,51 @@ function moverCarrusel(dir) {
 // ══════════════════════════════════════════════════════
 const MAPA_CATEGORIAS = { entrada: "entrada", principal: "principal", postre: "postre" };
 
-function buscarRecetas(query) {
+async function buscarRecetas(query) {
   const q = query.trim().toLowerCase();
-  const cards = document.querySelectorAll(".featured-card");
-  let visibles = 0;
-  cards.forEach((card) => {
-    const match = !q || card.dataset.nombre?.includes(q) || card.dataset.categoria?.includes(q) || card.textContent.toLowerCase().includes(q);
-    card.classList.toggle("hidden", !match);
-    if (match) visibles++;
+
+  if (!q) {
+    // Si borra el buscador, volver a mostrar todo normal
+    filtrarDestacadas(null);
+    const titulo = document.querySelector(".section-intro h2");
+    if (titulo) titulo.textContent = "Recetas destacadas";
+    return;
+  }
+
+  // Buscar en las recetas reales de json-server
+  const res = await axios.get(`${BASE}/recetas`);
+  const todas = res.data;
+
+  const encontradas = todas.filter(r => {
+    const catNombre = getNombreCategoria(r.categoriaId).toLowerCase();
+    return (
+      r.nombre.toLowerCase().includes(q) ||
+      (r.descripcion || "").toLowerCase().includes(q) ||
+      catNombre.includes(q) ||
+      (r.dificultad || "").toLowerCase().includes(q)
+    );
   });
-  const empty = document.getElementById("featured-empty");
-  if (empty) empty.style.display = visibles === 0 ? "block" : "none";
+
+  // Ir a sección recetas y mostrar resultados
+  showSection("recetas");
+  document.querySelectorAll(".nav-link[data-section]").forEach(l => l.classList.remove("active"));
+  document.querySelector('.nav-link[data-section="recetas"]')?.classList.add("active");
+
+  const contenedor = document.getElementById("lista-recetas");
+
+  if (encontradas.length === 0) {
+    contenedor.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="icon">🔍</div>No se encontraron recetas para "<strong>${q}</strong>".</div>`;
+    return;
+  }
+
+  // Limpiar filtro activo y mostrar resultados
+  filtroCategoriaId = null;
+  renderizarFiltros();
+  renderizarRecetas(encontradas);
+
+  // Actualizar título
+  const titulo = document.querySelector(".section-intro h2");
+  if (titulo) titulo.textContent = `Resultados para "${q}"`;
 }
 
 function filtrarDestacadas(categoria) {

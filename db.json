@@ -7,46 +7,18 @@
       "tiempo": 45,
       "dificultad": "fácil",
       "porciones": 4,
-      "categoriaId": 2
+      "categoriaId": "2",
+      "imagen": ""
     }
   ],
   "categorias": [
-    {
-      "id": "1",
-      "nombre": "Postres",
-      "color": "#F59E0B"
-    },
-    {
-      "id": "2",
-      "nombre": "Platos principales",
-      "color": "#EF4444"
-    },
-    {
-      "id": "3",
-      "nombre": "Entradas",
-      "color": "#10B981"
-    },
-    {
-      "id": "4",
-      "nombre": "Bebidas",
-      "color": "#3B82F6"
-    }
+    { "id": "1", "nombre": "Postres", "color": "#F59E0B" },
+    { "id": "2", "nombre": "Platos principales", "color": "#EF4444" },
+    { "id": "3", "nombre": "Entradas", "color": "#10B981" },
+    { "id": "4", "nombre": "Bebidas", "color": "#3B82F6" }
   ],
   "ingredientes": [
-    {
-      "id": "4",
-      "recetaId": 2,
-      "nombre": "Carne vacuna",
-      "cantidad": 500,
-      "unidad": "g"
-    },
-    {
-      "id": "5",
-      "recetaId": 2,
-      "nombre": "Salsa de tomate",
-      "cantidad": 200,
-      "unidad": "ml"
-    }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+    { "id": "4", "recetaId": "2", "nombre": "Carne vacuna", "cantidad": 500, "unidad": "g" },
+    { "id": "5", "recetaId": "2", "nombre": "Salsa de tomate", "cantidad": 200, "unidad": "ml" }
+  ]
 }

@@ -298,6 +298,31 @@ function renderizarFiltros() {
     btn.addEventListener("click", () => filtrarRecetas(cat.id, btn));
     bar.appendChild(btn);
   });
+
+  // Actualizar dropdown del nav con las categorías reales
+  actualizarDropdownNav();
+}
+
+function actualizarDropdownNav() {
+  const menu = document.querySelector(".nav-dropdown-menu");
+  if (!menu) return;
+  menu.innerHTML = "";
+  categorias.forEach((cat) => {
+    const a = document.createElement("a");
+    a.href = "#";
+    a.innerHTML = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cat.color};margin-right:6px;vertical-align:middle;border-radius:50%"></span>${cat.nombre}`;
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      // Ir a sección recetas y filtrar por esta categoría
+      showSection("recetas");
+      document.querySelectorAll(".nav-link[data-section]").forEach(l => l.classList.remove("active"));
+      document.querySelector('.nav-link[data-section="recetas"]')?.classList.add("active");
+      filtroCategoriaId = cat.id;
+      renderizarFiltros();
+      cargarRecetas();
+    });
+    menu.appendChild(a);
+  });
 }
 
 async function guardarCategoria() {
@@ -375,7 +400,7 @@ function renderizarRecetas(lista) {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      ${receta.imagen ? `<img src="${receta.imagen}" alt="${receta.nombre}" class="card-img" />` : ""}
+      ${receta.imagen ? `<img src="${receta.imagen}" alt="${receta.nombre}" class="card-img" onerror="this.style.display='none'" />` : ""}
       <div class="card-header" style="border-top: 3px solid ${catColor}">
         <h3>${receta.nombre}</h3>
         <div class="meta">
@@ -429,7 +454,12 @@ async function guardarReceta() {
     // Leer imagen si se seleccionó una
     let imagen = "";
     if (fileInput && fileInput.files && fileInput.files[0]) {
-      imagen = await leerImagenComoBase64(fileInput.files[0]);
+      const file = fileInput.files[0];
+      // Guardamos el nombre del archivo — el usuario debe moverlo a /img/ manualmente
+      // o usamos ObjectURL para mostrar localmente sin límite de tamaño
+      imagen = URL.createObjectURL(file);
+      // Guardamos también el nombre para referencia
+      imagen = `img/${file.name}`;
     } else if (editandoRecetaId) {
       const resActual = await axios.get(`${BASE}/recetas/${editandoRecetaId}`);
       imagen = resActual.data.imagen || "";
@@ -615,10 +645,11 @@ document.querySelector(".nav-dropdown-btn")?.addEventListener("click", function(
 });
 
 // ── Preview imagen al seleccionar archivo ───────────────
-document.getElementById("receta-imagen")?.addEventListener("change", async function() {
+document.getElementById("receta-imagen")?.addEventListener("change", function() {
   if (this.files[0]) {
-    const base64 = await leerImagenComoBase64(this.files[0]);
-    mostrarPreviewImagen(base64);
+    // Usamos ObjectURL para preview local sin límite de tamaño
+    const url = URL.createObjectURL(this.files[0]);
+    mostrarPreviewImagen(url);
   }
 });
 

@@ -36,6 +36,13 @@
             onclick="showSection('recetas', event)"
             >Recetas</a
           >
+          <a
+            href="#"
+            class="nav-link"
+            data-section="categorias"
+            onclick="showSection('categorias', event)"
+            >Categorías</a
+          >
 
           <div class="nav-dropdown">
             <button class="nav-link nav-dropdown-btn" type="button">
@@ -64,7 +71,7 @@
             <span class="search-icon">🔍</span>
           </div>
 
-          <div class="nav-auth">
+          <div class="nav-auth" id="nav-auth">
             <button class="btn btn-outline" onclick="abrirModalAuth('login')">
               Iniciar sesión
             </button>

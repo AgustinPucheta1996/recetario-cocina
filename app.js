@@ -3,13 +3,12 @@
 // ══════════════════════════════════════════════════════
 const BASE = "http://localhost:3000";
 
-// Estado local
-let editandoRecetaId = null;
-let editandoCategoriaId = null;
+let editandoRecetaId      = null;
+let editandoCategoriaId   = null;
 let editandoIngredienteId = null;
-let recetaActivaId = null;
-let categorias = [];
-let filtroCategoriaId = null;
+let recetaActivaId        = null;
+let categorias            = [];
+let filtroCategoriaId     = null;
 
 // ══════════════════════════════════════════════════════
 //  UTILS
@@ -21,26 +20,25 @@ function mostrarToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2500);
 }
 
+// Comparar IDs siempre como string — evita bugs number vs string
+function idIgual(a, b) {
+  return String(a) === String(b);
+}
+
 function showSection(nombre, e) {
   if (e) e.preventDefault();
-  document
-    .querySelectorAll(".section")
-    .forEach((s) => s.classList.remove("active"));
+  document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
   document.getElementById(`section-${nombre}`).classList.add("active");
-  document
-    .querySelectorAll(".nav-link[data-section]")
-    .forEach((l) => l.classList.remove("active"));
+  document.querySelectorAll(".nav-link[data-section]").forEach((l) => l.classList.remove("active"));
   const link = document.querySelector(`.nav-link[data-section="${nombre}"]`);
   if (link) link.classList.add("active");
   document.getElementById("main-nav")?.classList.remove("open");
-
   if (nombre === "inicio") {
     document.getElementById("buscador").value = "";
     filtrarDestacadas(null);
     const titulo = document.querySelector(".section-intro h2");
     if (titulo) titulo.textContent = "Recetas destacadas";
   }
-
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -54,7 +52,6 @@ function initCarrusel() {
   const slides = document.querySelectorAll(".carousel-slide");
   const dotsCont = document.getElementById("carousel-dots");
   if (!slides.length || !dotsCont) return;
-
   dotsCont.innerHTML = "";
   slides.forEach((_, i) => {
     const dot = document.createElement("button");
@@ -63,18 +60,16 @@ function initCarrusel() {
     dot.addEventListener("click", () => irACarrusel(i));
     dotsCont.appendChild(dot);
   });
-
   carouselTimer = setInterval(() => moverCarrusel(1), 5000);
 }
 
 function irACarrusel(index) {
   const slides = document.querySelectorAll(".carousel-slide");
-  const dots = document.querySelectorAll(".carousel-dot");
+  const dots   = document.querySelectorAll(".carousel-dot");
   if (!slides.length) return;
-
   carouselIndex = ((index % slides.length) + slides.length) % slides.length;
   slides.forEach((s, i) => s.classList.toggle("active", i === carouselIndex));
-  dots.forEach((d, i) => d.classList.toggle("active", i === carouselIndex));
+  dots.forEach((d, i)   => d.classList.toggle("active", i === carouselIndex));
 }
 
 function moverCarrusel(dir) {
@@ -86,48 +81,29 @@ function moverCarrusel(dir) {
 // ══════════════════════════════════════════════════════
 //  BUSCADOR & FILTROS DESTACADAS
 // ══════════════════════════════════════════════════════
-const MAPA_CATEGORIAS = {
-  entrada: "entrada",
-  principal: "principal",
-  postre: "postre",
-};
+const MAPA_CATEGORIAS = { entrada: "entrada", principal: "principal", postre: "postre" };
 
 function buscarRecetas(query) {
   const q = query.trim().toLowerCase();
   const cards = document.querySelectorAll(".featured-card");
   let visibles = 0;
-
   cards.forEach((card) => {
-    const nombre = card.dataset.nombre || "";
-    const cat = card.dataset.categoria || "";
-    const texto = card.textContent.toLowerCase();
-    const match =
-      !q || nombre.includes(q) || cat.includes(q) || texto.includes(q);
+    const match = !q || card.dataset.nombre?.includes(q) || card.dataset.categoria?.includes(q) || card.textContent.toLowerCase().includes(q);
     card.classList.toggle("hidden", !match);
     if (match) visibles++;
   });
-
   const empty = document.getElementById("featured-empty");
   if (empty) empty.style.display = visibles === 0 ? "block" : "none";
-
-  if (
-    q &&
-    !document.getElementById("section-inicio").classList.contains("active")
-  ) {
-    showSection("inicio");
-  }
 }
 
 function filtrarDestacadas(categoria) {
   const cards = document.querySelectorAll(".featured-card");
   let visibles = 0;
-
   cards.forEach((card) => {
     const match = !categoria || card.dataset.categoria === categoria;
     card.classList.toggle("hidden", !match);
     if (match) visibles++;
   });
-
   const empty = document.getElementById("featured-empty");
   if (empty) empty.style.display = visibles === 0 ? "block" : "none";
 }
@@ -137,14 +113,9 @@ function filtrarDesdeNav(tipo, e) {
   showSection("inicio");
   document.getElementById("buscador").value = "";
   filtrarDestacadas(MAPA_CATEGORIAS[tipo] || null);
-  document.querySelector(".section-intro h2").textContent =
-    tipo === "entrada"
-      ? "Entradas"
-      : tipo === "principal"
-        ? "Platos principales"
-        : tipo === "postre"
-          ? "Postres"
-          : "Recetas destacadas";
+  const titulos = { entrada: "Entradas", principal: "Platos principales", postre: "Postres" };
+  const el = document.querySelector(".section-intro h2");
+  if (el) el.textContent = titulos[tipo] || "Recetas destacadas";
 }
 
 // ══════════════════════════════════════════════════════
@@ -155,12 +126,8 @@ let authModo = "login";
 function abrirModalAuth(modo) {
   authModo = modo;
   const esRegistro = modo === "register";
-  document.getElementById("auth-title").textContent = esRegistro
-    ? "Crear cuenta"
-    : "Iniciar sesión";
-  document.getElementById("auth-nombre-group").style.display = esRegistro
-    ? "flex"
-    : "none";
+  document.getElementById("auth-title").textContent = esRegistro ? "Crear cuenta" : "Iniciar sesión";
+  document.getElementById("auth-nombre-group").style.display = esRegistro ? "flex" : "none";
   document.getElementById("auth-switch").innerHTML = esRegistro
     ? "¿Ya tenés cuenta? <a onclick=\"abrirModalAuth('login')\">Iniciá sesión</a>"
     : "¿No tenés cuenta? <a onclick=\"abrirModalAuth('register')\">Registrate</a>";
@@ -176,11 +143,7 @@ function enviarAuth(e) {
   e.preventDefault();
   const email = document.getElementById("auth-email").value;
   cerrarModalAuth();
-  mostrarToast(
-    authModo === "register"
-      ? `✅ ¡Bienvenido/a! Cuenta creada para ${email}`
-      : `✅ Sesión iniciada. ¡Hola de nuevo!`,
-  );
+  mostrarToast(authModo === "register" ? `✅ ¡Bienvenido/a! Cuenta creada para ${email}` : `✅ Sesión iniciada. ¡Hola de nuevo!`);
 }
 
 function suscribirNewsletter(e) {
@@ -191,17 +154,8 @@ function suscribirNewsletter(e) {
 }
 
 function badgeDificultad(dif) {
-  const cls = {
-    fácil: "dificultad-facil",
-    media: "dificultad-media",
-    difícil: "dificultad-dificil",
-  };
+  const cls = { "fácil": "dificultad-facil", "media": "dificultad-media", "difícil": "dificultad-dificil" };
   return `<span class="badge ${cls[dif] || ""}">${dif}</span>`;
-}
-
-// Siempre comparar IDs como strings para evitar problemas de tipo
-function idIgual(a, b) {
-  return String(a) === String(b);
 }
 
 function getNombreCategoria(id) {
@@ -211,6 +165,30 @@ function getNombreCategoria(id) {
 function getColorCategoria(id) {
   const cat = categorias.find((c) => idIgual(c.id, id));
   return cat ? cat.color : "#ccc";
+}
+
+// ══════════════════════════════════════════════════════
+//  IMAGEN — convertir a base64
+// ══════════════════════════════════════════════════════
+function leerImagenComoBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Error al leer imagen"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function mostrarPreviewImagen(base64) {
+  const preview = document.getElementById("receta-imagen-preview");
+  if (!preview) return;
+  if (base64) {
+    preview.src = base64;
+    preview.style.display = "block";
+  } else {
+    preview.src = "";
+    preview.style.display = "none";
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -244,38 +222,28 @@ function renderizarCategorias() {
         <button class="btn btn-sm btn-danger">Eliminar</button>
       </div>
     `;
-    div
-      .querySelector(".btn-edit")
-      .addEventListener("click", () => editarCategoria(cat.id));
-    div
-      .querySelector(".btn-danger")
-      .addEventListener("click", () => eliminarCategoria(cat.id));
+    div.querySelector(".btn-edit").addEventListener("click", () => editarCategoria(cat.id));
+    div.querySelector(".btn-danger").addEventListener("click", () => eliminarCategoria(cat.id));
     lista.appendChild(div);
   });
 }
 
 function poblarSelectCategorias() {
   const sel = document.getElementById("receta-categoria");
-  sel.innerHTML = categorias
-    .map((cat) => `<option value="${cat.id}">${cat.nombre}</option>`)
-    .join("");
+  sel.innerHTML = categorias.map((cat) => `<option value="${cat.id}">${cat.nombre}</option>`).join("");
 }
 
 function renderizarFiltros() {
   const bar = document.getElementById("filtros-categoria");
   bar.innerHTML = "";
-
   const btnTodas = document.createElement("button");
-  btnTodas.className =
-    "filter-btn" + (filtroCategoriaId === null ? " active" : "");
+  btnTodas.className = "filter-btn" + (filtroCategoriaId === null ? " active" : "");
   btnTodas.textContent = "Todas";
   btnTodas.addEventListener("click", () => filtrarRecetas(null, btnTodas));
   bar.appendChild(btnTodas);
-
   categorias.forEach((cat) => {
     const btn = document.createElement("button");
-    btn.className =
-      "filter-btn" + (idIgual(filtroCategoriaId, cat.id) ? " active" : "");
+    btn.className = "filter-btn" + (idIgual(filtroCategoriaId, cat.id) ? " active" : "");
     btn.innerHTML = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cat.color};margin-right:5px;vertical-align:middle"></span>${cat.nombre}`;
     btn.addEventListener("click", () => filtrarRecetas(cat.id, btn));
     bar.appendChild(btn);
@@ -284,17 +252,10 @@ function renderizarFiltros() {
 
 async function guardarCategoria() {
   const nombre = document.getElementById("cat-nombre").value.trim();
-  const color = document.getElementById("cat-color").value;
-  if (!nombre) {
-    mostrarToast("⚠️ El nombre es obligatorio");
-    return;
-  }
-
+  const color  = document.getElementById("cat-color").value;
+  if (!nombre) { mostrarToast("⚠️ El nombre es obligatorio"); return; }
   if (editandoCategoriaId) {
-    await axios.patch(`${BASE}/categorias/${editandoCategoriaId}`, {
-      nombre,
-      color,
-    });
+    await axios.patch(`${BASE}/categorias/${editandoCategoriaId}`, { nombre, color });
     mostrarToast("✅ Categoría actualizada");
   } else {
     await axios.post(`${BASE}/categorias`, { nombre, color });
@@ -309,7 +270,7 @@ function editarCategoria(id) {
   if (!cat) return;
   editandoCategoriaId = cat.id;
   document.getElementById("cat-nombre").value = cat.nombre;
-  document.getElementById("cat-color").value = cat.color;
+  document.getElementById("cat-color").value  = cat.color;
   document.getElementById("form-cat-title").textContent = "✏️ Editar categoría";
   document.getElementById("btn-cancelar-cat").style.display = "inline-block";
 }
@@ -318,9 +279,7 @@ async function eliminarCategoria(id) {
   const res = await axios.get(`${BASE}/recetas`);
   const asociadas = res.data.filter((r) => idIgual(r.categoriaId, id));
   if (asociadas.length > 0) {
-    const ok = confirm(
-      `Esta categoría tiene ${asociadas.length} receta(s) asociada(s). ¿Eliminar igual?`,
-    );
+    const ok = confirm(`Esta categoría tiene ${asociadas.length} receta(s) asociada(s). ¿Eliminar igual?`);
     if (!ok) return;
   }
   await axios.delete(`${BASE}/categorias/${id}`);
@@ -329,13 +288,11 @@ async function eliminarCategoria(id) {
   await cargarRecetas();
 }
 
-function cancelarEdicionCategoria() {
-  limpiarFormCategoria();
-}
+function cancelarEdicionCategoria() { limpiarFormCategoria(); }
 
 function limpiarFormCategoria() {
   document.getElementById("cat-nombre").value = "";
-  document.getElementById("cat-color").value = "#6366F1";
+  document.getElementById("cat-color").value  = "#6366F1";
   document.getElementById("form-cat-title").textContent = "➕ Nueva categoría";
   document.getElementById("btn-cancelar-cat").style.display = "none";
   editandoCategoriaId = null;
@@ -351,10 +308,9 @@ async function cargarRecetas() {
 
 function renderizarRecetas(lista) {
   const contenedor = document.getElementById("lista-recetas");
-  const filtradas =
-    filtroCategoriaId !== null
-      ? lista.filter((r) => idIgual(r.categoriaId, filtroCategoriaId))
-      : lista;
+  const filtradas  = filtroCategoriaId !== null
+    ? lista.filter((r) => idIgual(r.categoriaId, filtroCategoriaId))
+    : lista;
 
   if (filtradas.length === 0) {
     contenedor.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="icon">🍳</div>No hay recetas todavía. ¡Crea la primera!</div>`;
@@ -363,12 +319,13 @@ function renderizarRecetas(lista) {
 
   contenedor.innerHTML = "";
   filtradas.forEach((receta) => {
-    const catColor = getColorCategoria(receta.categoriaId);
+    const catColor  = getColorCategoria(receta.categoriaId);
     const catNombre = getNombreCategoria(receta.categoriaId);
 
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
+      ${receta.imagen ? `<img src="${receta.imagen}" alt="${receta.nombre}" class="card-img" />` : ""}
       <div class="card-header" style="border-top: 3px solid ${catColor}">
         <h3>${receta.nombre}</h3>
         <div class="meta">
@@ -390,40 +347,40 @@ function renderizarRecetas(lista) {
       </div>
     `;
 
-    // Siempre usar addEventListener — nunca onclick inline
-    const [btnIng, btnEdit, btnDel] =
-      card.querySelectorAll(".card-footer .btn");
-    btnIng.addEventListener("click", () =>
-      abrirIngredientes(receta.id, receta.nombre),
-    );
+    const [btnIng, btnEdit, btnDel] = card.querySelectorAll(".card-footer .btn");
+    btnIng.addEventListener("click",  () => abrirIngredientes(receta.id, receta.nombre));
     btnEdit.addEventListener("click", () => editarReceta(receta.id));
-    btnDel.addEventListener("click", () => eliminarReceta(receta.id));
+    btnDel.addEventListener("click",  () => eliminarReceta(receta.id));
 
     contenedor.appendChild(card);
   });
 }
 
 async function guardarReceta() {
-  const nombre = document.getElementById("receta-nombre").value.trim();
+  const nombre      = document.getElementById("receta-nombre").value.trim();
   const descripcion = document.getElementById("receta-desc").value.trim();
-  const tiempo = parseInt(document.getElementById("receta-tiempo").value);
-  const dificultad = document.getElementById("receta-dificultad").value;
-  const porciones = parseInt(document.getElementById("receta-porciones").value);
-  const categoriaId = document.getElementById("receta-categoria").value; // string, lo deja json-server manejar
+  const tiempo      = parseInt(document.getElementById("receta-tiempo").value);
+  const dificultad  = document.getElementById("receta-dificultad").value;
+  const porciones   = parseInt(document.getElementById("receta-porciones").value);
+  const categoriaId = document.getElementById("receta-categoria").value;
+  const fileInput   = document.getElementById("receta-imagen");
 
   if (!nombre || !tiempo || !porciones) {
     mostrarToast("⚠️ Completá los campos obligatorios");
     return;
   }
 
-  const datos = {
-    nombre,
-    descripcion,
-    tiempo,
-    dificultad,
-    porciones,
-    categoriaId,
-  };
+  // Leer imagen si se seleccionó una
+  let imagen = "";
+  if (fileInput && fileInput.files[0]) {
+    imagen = await leerImagenComoBase64(fileInput.files[0]);
+  } else if (editandoRecetaId) {
+    // Si estamos editando y no cambiaron la imagen, conservar la que ya tenía
+    const resActual = await axios.get(`${BASE}/recetas/${editandoRecetaId}`);
+    imagen = resActual.data.imagen || "";
+  }
+
+  const datos = { nombre, descripcion, tiempo, dificultad, porciones, categoriaId, imagen };
 
   if (editandoRecetaId) {
     await axios.patch(`${BASE}/recetas/${editandoRecetaId}`, datos);
@@ -439,41 +396,44 @@ async function guardarReceta() {
 
 async function editarReceta(id) {
   const res = await axios.get(`${BASE}/recetas/${id}`);
-  const r = res.data;
+  const r   = res.data;
   editandoRecetaId = r.id;
 
-  document.getElementById("receta-nombre").value = r.nombre;
-  document.getElementById("receta-desc").value = r.descripcion;
-  document.getElementById("receta-tiempo").value = r.tiempo;
+  document.getElementById("receta-nombre").value     = r.nombre;
+  document.getElementById("receta-desc").value       = r.descripcion;
+  document.getElementById("receta-tiempo").value     = r.tiempo;
   document.getElementById("receta-dificultad").value = r.dificultad;
-  document.getElementById("receta-porciones").value = r.porciones;
-  document.getElementById("receta-categoria").value = r.categoriaId;
+  document.getElementById("receta-porciones").value  = r.porciones;
+  document.getElementById("receta-categoria").value  = r.categoriaId;
   document.getElementById("form-receta-title").textContent = "✏️ Editar receta";
   document.getElementById("btn-cancelar-receta").style.display = "inline-block";
+
+  // Mostrar imagen actual si tiene
+  mostrarPreviewImagen(r.imagen || "");
+
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 async function eliminarReceta(id) {
   if (!confirm("¿Eliminar esta receta y todos sus ingredientes?")) return;
   const resIng = await axios.get(`${BASE}/ingredientes?recetaId=${id}`);
-  await Promise.all(
-    resIng.data.map((ing) => axios.delete(`${BASE}/ingredientes/${ing.id}`)),
-  );
+  await Promise.all(resIng.data.map((ing) => axios.delete(`${BASE}/ingredientes/${ing.id}`)));
   await axios.delete(`${BASE}/recetas/${id}`);
   mostrarToast("🗑️ Receta eliminada");
   await cargarRecetas();
 }
 
-function cancelarEdicionReceta() {
-  limpiarFormReceta();
-}
+function cancelarEdicionReceta() { limpiarFormReceta(); }
 
 function limpiarFormReceta() {
-  document.getElementById("receta-nombre").value = "";
-  document.getElementById("receta-desc").value = "";
-  document.getElementById("receta-tiempo").value = "";
+  document.getElementById("receta-nombre").value     = "";
+  document.getElementById("receta-desc").value       = "";
+  document.getElementById("receta-tiempo").value     = "";
   document.getElementById("receta-dificultad").value = "fácil";
-  document.getElementById("receta-porciones").value = "";
+  document.getElementById("receta-porciones").value  = "";
+  const fileInput = document.getElementById("receta-imagen");
+  if (fileInput) fileInput.value = "";
+  mostrarPreviewImagen("");
   document.getElementById("form-receta-title").textContent = "➕ Nueva receta";
   document.getElementById("btn-cancelar-receta").style.display = "none";
   editandoRecetaId = null;
@@ -481,9 +441,7 @@ function limpiarFormReceta() {
 
 async function filtrarRecetas(categoriaId, btn) {
   filtroCategoriaId = categoriaId !== null ? categoriaId : null;
-  document
-    .querySelectorAll(".filter-btn")
-    .forEach((b) => b.classList.remove("active"));
+  document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
   btn.classList.add("active");
   await cargarRecetas();
 }
@@ -492,7 +450,7 @@ async function filtrarRecetas(categoriaId, btn) {
 //  INGREDIENTES — CRUD
 // ══════════════════════════════════════════════════════
 async function abrirIngredientes(recetaId, nombre) {
-  recetaActivaId = recetaId; // guardamos tal cual viene de la receta
+  recetaActivaId = String(recetaId); // siempre string para que coincida con recetaId en db
   document.getElementById("modal-receta-nombre").textContent = `🧂 ${nombre}`;
   document.getElementById("modal-ingredientes").classList.add("open");
   limpiarFormIngrediente();
@@ -506,10 +464,7 @@ function cerrarModal() {
 }
 
 async function cargarIngredientes() {
-  // Usamos el id tal cual — json-server filtra por igualdad de string
-  const res = await axios.get(
-    `${BASE}/ingredientes?recetaId=${recetaActivaId}`,
-  );
+  const res = await axios.get(`${BASE}/ingredientes?recetaId=${recetaActivaId}`);
   renderizarIngredientes(res.data);
 }
 
@@ -531,41 +486,24 @@ function renderizarIngredientes(lista) {
         <button class="btn btn-sm btn-danger">✕</button>
       </div>
     `;
-    li.querySelector(".btn-edit").addEventListener("click", () =>
-      editarIngrediente(ing.id),
-    );
-    li.querySelector(".btn-danger").addEventListener("click", () =>
-      eliminarIngrediente(ing.id),
-    );
+    li.querySelector(".btn-edit").addEventListener("click",   () => editarIngrediente(ing.id));
+    li.querySelector(".btn-danger").addEventListener("click", () => eliminarIngrediente(ing.id));
     ul.appendChild(li);
   });
 }
 
 async function guardarIngrediente() {
-  const nombre = document.getElementById("ing-nombre").value.trim();
+  const nombre   = document.getElementById("ing-nombre").value.trim();
   const cantidad = parseFloat(document.getElementById("ing-cantidad").value);
-  const unidad = document.getElementById("ing-unidad").value;
-
-  if (!nombre || !cantidad) {
-    mostrarToast("⚠️ Completá nombre y cantidad");
-    return;
-  }
+  const unidad   = document.getElementById("ing-unidad").value;
+  if (!nombre || !cantidad) { mostrarToast("⚠️ Completá nombre y cantidad"); return; }
 
   if (editandoIngredienteId) {
-    await axios.patch(`${BASE}/ingredientes/${editandoIngredienteId}`, {
-      nombre,
-      cantidad,
-      unidad,
-    });
+    await axios.patch(`${BASE}/ingredientes/${editandoIngredienteId}`, { nombre, cantidad, unidad });
     mostrarToast("✅ Ingrediente actualizado");
   } else {
-    // recetaId lo guardamos tal cual está en la receta activa
-    await axios.post(`${BASE}/ingredientes`, {
-      nombre,
-      cantidad,
-      unidad,
-      recetaId: recetaActivaId,
-    });
+    // recetaId siempre como string para que coincida con el id de la receta
+    await axios.post(`${BASE}/ingredientes`, { nombre, cantidad, unidad, recetaId: String(recetaActivaId) });
     mostrarToast("✅ Ingrediente agregado");
   }
 
@@ -577,11 +515,10 @@ async function editarIngrediente(id) {
   const res = await axios.get(`${BASE}/ingredientes/${id}`);
   const ing = res.data;
   editandoIngredienteId = ing.id;
-  document.getElementById("ing-nombre").value = ing.nombre;
+  document.getElementById("ing-nombre").value   = ing.nombre;
   document.getElementById("ing-cantidad").value = ing.cantidad;
-  document.getElementById("ing-unidad").value = ing.unidad;
-  document.getElementById("form-ing-title").textContent =
-    "✏️ Editar ingrediente";
+  document.getElementById("ing-unidad").value   = ing.unidad;
+  document.getElementById("form-ing-title").textContent = "✏️ Editar ingrediente";
   document.getElementById("btn-cancelar-ing").style.display = "inline-block";
 }
 
@@ -591,39 +528,40 @@ async function eliminarIngrediente(id) {
   await cargarIngredientes();
 }
 
-function cancelarEdicionIngrediente() {
-  limpiarFormIngrediente();
-}
+function cancelarEdicionIngrediente() { limpiarFormIngrediente(); }
 
 function limpiarFormIngrediente() {
-  document.getElementById("ing-nombre").value = "";
+  document.getElementById("ing-nombre").value   = "";
   document.getElementById("ing-cantidad").value = "";
-  document.getElementById("ing-unidad").value = "g";
-  document.getElementById("form-ing-title").textContent =
-    "➕ Agregar ingrediente";
+  document.getElementById("ing-unidad").value   = "g";
+  document.getElementById("form-ing-title").textContent = "➕ Agregar ingrediente";
   document.getElementById("btn-cancelar-ing").style.display = "none";
   editandoIngredienteId = null;
 }
 
-// Cerrar modales al clickear overlay
-document
-  .getElementById("modal-ingredientes")
-  .addEventListener("click", function (e) {
-    if (e.target === this) cerrarModal();
-  });
-document.getElementById("modal-auth").addEventListener("click", function (e) {
+// ── Cerrar modales al clickear overlay ─────────────────
+document.getElementById("modal-ingredientes").addEventListener("click", function(e) {
+  if (e.target === this) cerrarModal();
+});
+document.getElementById("modal-auth").addEventListener("click", function(e) {
   if (e.target === this) cerrarModalAuth();
 });
 
-// Nav mobile
+// ── Nav mobile ──────────────────────────────────────────
 document.getElementById("nav-toggle")?.addEventListener("click", () => {
   document.getElementById("main-nav").classList.toggle("open");
 });
-document
-  .querySelector(".nav-dropdown-btn")
-  ?.addEventListener("click", function () {
-    this.closest(".nav-dropdown").classList.toggle("open");
-  });
+document.querySelector(".nav-dropdown-btn")?.addEventListener("click", function() {
+  this.closest(".nav-dropdown").classList.toggle("open");
+});
+
+// ── Preview imagen al seleccionar archivo ───────────────
+document.getElementById("receta-imagen")?.addEventListener("change", async function() {
+  if (this.files[0]) {
+    const base64 = await leerImagenComoBase64(this.files[0]);
+    mostrarPreviewImagen(base64);
+  }
+});
 
 // ══════════════════════════════════════════════════════
 //  INIT

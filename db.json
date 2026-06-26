@@ -1,24 +1,70 @@
 {
   "recetas": [
     {
-      "id": "2",
-      "nombre": "Milanesas a la napolitana",
-      "descripcion": "Milanesas jugosas con salsa de tomate, jamón y queso gratinado.",
-      "tiempo": 45,
+      "nombre": "Tamal",
+      "descripcion": "tamales clasicos",
+      "tiempo": 30,
+      "dificultad": "media",
+      "porciones": 12,
+      "categoriaId": "hW7MmdD80UY",
+      "imagen": "img/tamales.png",
+      "id": "8NuMLaV5EkY"
+    },
+    {
+      "nombre": "Coca Cola",
+      "descripcion": "Coca cola 2,5",
+      "tiempo": 1,
       "dificultad": "fácil",
-      "porciones": 4,
-      "categoriaId": "2",
-      "imagen": ""
+      "porciones": 1,
+      "categoriaId": "4",
+      "imagen": "img/coca.webp",
+      "id": "JTOPyU_NMlU"
     }
   ],
   "categorias": [
-    { "id": "1", "nombre": "Postres", "color": "#F59E0B" },
-    { "id": "2", "nombre": "Platos principales", "color": "#EF4444" },
-    { "id": "3", "nombre": "Entradas", "color": "#10B981" },
-    { "id": "4", "nombre": "Bebidas", "color": "#3B82F6" }
+    {
+      "id": "1",
+      "nombre": "Postres",
+      "color": "#F59E0B"
+    },
+    {
+      "id": "3",
+      "nombre": "Entradas",
+      "color": "#10B981"
+    },
+    {
+      "id": "4",
+      "nombre": "Bebidas",
+      "color": "#3B82F6"
+    },
+    {
+      "nombre": "Platos Principales",
+      "color": "#4144c8",
+      "id": "hW7MmdD80UY"
+    }
   ],
   "ingredientes": [
-    { "id": "4", "recetaId": "2", "nombre": "Carne vacuna", "cantidad": 500, "unidad": "g" },
-    { "id": "5", "recetaId": "2", "nombre": "Salsa de tomate", "cantidad": 200, "unidad": "ml" }
-  ]
+    {
+      "id": "4",
+      "recetaId": null,
+      "nombre": "Carne vacuna",
+      "cantidad": 500,
+      "unidad": "g"
+    },
+    {
+      "id": "5",
+      "recetaId": null,
+      "nombre": "Salsa de tomate",
+      "cantidad": 200,
+      "unidad": "ml"
+    },
+    {
+      "nombre": "Azucaaaaaaar",
+      "cantidad": 50,
+      "unidad": "g",
+      "recetaId": "JTOPyU_NMlU",
+      "id": "G4w6x5mn8xM"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

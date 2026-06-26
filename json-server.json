@@ -1,0 +1,4 @@
+{
+  "port": 3000,
+  "bodyParserLimit": "50mb"
+}

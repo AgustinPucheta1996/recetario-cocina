@@ -1043,3 +1043,11 @@ textarea {
     flex-direction: column;
   }
 }
+
+/* ── Card imagen ──────────────────────────────────── */
+.card-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
